@@ -14,7 +14,7 @@
     }
   },
   "bin": {
-    "chatty-buddy-server": "./bin/server.js"
+    "chatty-buddy-server": "./bin/server.ts"
   },
   "files": [
     "src",
