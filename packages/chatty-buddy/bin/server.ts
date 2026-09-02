@@ -16,8 +16,8 @@ const args = process.argv.slice(2);
 const config = {
   provider: getArg('provider') || process.env.RAG_PROVIDER || 'ollama',
   apiKey: getArg('api-key') || process.env.RAG_API_KEY,
-  model: getArg('model') || process.env.RAG_MODEL,
-  vectorStore: getArg('vector-store') || process.env.RAG_VECTOR_STORE || 'chromadb',
+  model: getArg('model') || process.env.RAG_MODEL || 'qwen2.5-coder:1.5b',
+  vectorStore: getArg('vector-store') || process.env.RAG_VECTOR_STORE || 'inmemory',
   documentsPath: getArg('documents') || process.env.RAG_DOCUMENTS_PATH || './docs',
   systemPrompt: getArg('system-prompt') || process.env.RAG_SYSTEM_PROMPT,
   temperature: parseFloat(getArg('temperature') || process.env.RAG_TEMPERATURE || '0.7'),

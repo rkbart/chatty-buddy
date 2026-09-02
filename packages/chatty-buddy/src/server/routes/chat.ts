@@ -84,7 +84,8 @@ export function createChatRouter(config: RagChatbotConfig): Router {
     } catch (error) {
       console.error('Chat error:', error);
       if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.status(500).json({ error: 'Internal server error', details: errorMessage });
       }
     }
   });
