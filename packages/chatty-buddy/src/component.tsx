@@ -1,43 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { RagChatbotProps, Message } from './types.ts';
-import { startEmbeddedServer, type ServerInstance } from './server/index.ts';
-import { registry } from './server/services/llm/registry.ts';
-import { vectorRegistry } from './server/services/stores/registry.ts';
-import { NvidiaProvider } from './server/services/llm/nvidia.ts';
-import { OllamaProvider } from './server/services/llm/ollama.ts';
-import { OpenAIProvider } from './server/services/llm/openai.ts';
-import { AnthropicProvider } from './server/services/llm/anthropic.ts';
-import { GoogleProvider } from './server/services/llm/google.ts';
-import { ChromaDBStore } from './server/services/stores/chromadb.ts';
-import { InMemoryStore } from './server/services/stores/inmemory.ts';
 import './styles.css';
-
-// Register built-in providers and stores
-function registerDefaults() {
-  // Providers
-  if (!registry.has('nvidia')) {
-    // We'll register with placeholder - actual config comes from props
-  }
-  if (!registry.has('ollama')) {
-    // We'll register with placeholder - actual config comes from props
-  }
-
-  // Stores
-  if (!vectorRegistry.has('chromadb')) {
-    vectorRegistry.register({
-      id: 'chromadb',
-      name: 'ChromaDB',
-      create: (config) => new ChromaDBStore(config),
-    });
-  }
-  if (!vectorRegistry.has('inmemory')) {
-    vectorRegistry.register({
-      id: 'inmemory',
-      name: 'In-Memory',
-      create: (config) => new InMemoryStore(config),
-    });
-  }
-}
 
 export function RagChatbot({
   provider,
@@ -54,96 +17,52 @@ export function RagChatbot({
   temperature = 0.7,
   maxTokens = 1024,
   showSources = true,
-  serverPort,
+  serverPort = 3000,
   dataDir = './.rag-chatbot',
 }: RagChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [server, setServer] = useState<ServerInstance | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [isIngesting, setIsIngesting] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Register built-in providers and stores on mount
-  useEffect(() => {
-    registerDefaults();
-  }, []);
+  const serverUrl = `http://localhost:${serverPort}`;
 
-  // Start embedded server on mount
+  // Check server connection on mount
   useEffect(() => {
-    const initServer = async () => {
+    const checkServer = async () => {
       try {
-        // Register provider based on config
-        switch (provider) {
-          case 'nvidia':
-            if (apiKey) {
-              registry.register(new NvidiaProvider({ apiKey, model }));
-            }
-            break;
-          case 'ollama':
-            registry.register(new OllamaProvider({ model }));
-            break;
-          case 'openai':
-            if (apiKey) {
-              registry.register(new OpenAIProvider({ apiKey, model }));
-            }
-            break;
-          case 'anthropic':
-            if (apiKey) {
-              registry.register(new AnthropicProvider({ apiKey, model }));
-            }
-            break;
-          case 'google':
-            if (apiKey) {
-              registry.register(new GoogleProvider({ apiKey, model }));
-            }
-            break;
-        }
+        const response = await fetch(`${serverUrl}/health`);
+        if (response.ok) {
+          setIsConnected(true);
+          setServerError(null);
 
-        const instance = await startEmbeddedServer({
-          provider,
-          apiKey,
-          model,
-          vectorStore,
-          vectorStoreConfig,
-          documentsPath,
-          systemPrompt,
-          temperature,
-          maxTokens,
-          serverPort,
-          dataDir,
-        });
-        setServer(instance);
-
-        // Auto-ingest documents
-        setIsIngesting(true);
-        try {
-          const response = await fetch(`http://localhost:${instance.port}/api/documents/ingest`, {
-            method: 'POST',
-          });
-          if (response.ok) {
-            console.log('Documents ingested successfully');
+          // Auto-ingest documents
+          setIsIngesting(true);
+          try {
+            const ingestResponse = await fetch(`${serverUrl}/api/documents/ingest`, {
+              method: 'POST',
+            });
+            if (ingestResponse.ok) {
+              console.log('Documents ingested successfully');
+            }
+          } catch (error) {
+            console.error('Document ingestion error:', error);
+          } finally {
+            setIsIngesting(false);
           }
-        } catch (error) {
-          console.error('Document ingestion error:', error);
-        } finally {
-          setIsIngesting(false);
         }
-      } catch (error) {
-        console.error('Server initialization error:', error);
-        setServerError(error instanceof Error ? error.message : 'Failed to start server');
+      } catch {
+        setServerError('Server not running. Start the server with: npx @chatty-buddy/server');
       }
     };
 
-    initServer();
-
-    return () => {
-      server?.close();
-    };
-  }, [provider, apiKey, model, vectorStore, documentsPath]);
+    checkServer();
+  }, [serverUrl]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -158,7 +77,7 @@ export function RagChatbot({
   }, [isOpen]);
 
   const handleSend = useCallback(async () => {
-    if (!input.trim() || isLoading || !server) return;
+    if (!input.trim() || isLoading || !isConnected) return;
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -166,7 +85,7 @@ export function RagChatbot({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:${server.port}/api/chat`, {
+      const response = await fetch(`${serverUrl}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -226,7 +145,7 @@ export function RagChatbot({
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, server, messages]);
+  }, [input, isLoading, isConnected, messages, serverUrl]);
 
   return (
     <div

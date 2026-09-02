@@ -13,8 +13,12 @@
       "require": "./src/index.ts"
     }
   },
+  "bin": {
+    "chatty-buddy-server": "./bin/server.js"
+  },
   "files": [
     "src",
+    "bin",
     "dist"
   ],
   "keywords": [
