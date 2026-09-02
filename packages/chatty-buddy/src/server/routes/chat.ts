@@ -56,12 +56,22 @@ export function createChatRouter(config: RagChatbotConfig): Router {
       }
 
       // Build system prompt with context
-      const systemPrompt = config.systemPrompt || 'Answer based on the provided context.';
+      const defaultPrompt = `You are a helpful assistant that answers questions ONLY based on the provided context/documents.
+
+RULES:
+1. ONLY answer using information found in the context below.
+2. If the answer is NOT in the context, respond EXACTLY: "I don't have information about that in the provided documents."
+3. Do NOT use your own knowledge or make up answers.
+4. Do NOT provide general knowledge answers even if you know them.
+5. If the context is empty or doesn't contain relevant information, say: "I don't have information about that in the provided documents."
+6. Keep answers concise and directly from the source material.`;
+
+      const systemPrompt = config.systemPrompt || defaultPrompt;
       const systemMessage: Message = {
         role: 'system',
         content: contextText
-          ? `${systemPrompt}\n\nContext:\n${contextText}`
-          : systemPrompt,
+          ? `${systemPrompt}\n\nCONTEXT:\n${contextText}`
+          : `${systemPrompt}\n\nCONTEXT:\nNo documents provided.`,
       };
 
       // Stream response
