@@ -1,0 +1,55 @@
+{
+  "name": "@chatty-buddy/react",
+  "description": "Drop-in React component for RAG-powered chatbots with multi-provider LLM support",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "chatbot",
+    "rag",
+    "llm",
+    "ai",
+    "nvidia",
+    "ollama",
+    "openai",
+    "anthropic",
+    "google",
+    "chromadb",
+    "vector-database"
+  ],
+  "author": "",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chromadb": "^1.9.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
+  }
+}

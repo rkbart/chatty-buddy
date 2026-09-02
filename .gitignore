@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+lib/
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea
+.DS_Store
+*.sw?
+
+# Testing and coverage
+coverage/
+tmp/
+
+# Package manager
+.pnpm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
