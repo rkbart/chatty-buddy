@@ -14,9 +14,9 @@ import { InMemoryStore } from '../src/server/services/stores/inmemory.ts';
 // Parse command line arguments
 const args = process.argv.slice(2);
 const config = {
-  provider: getArg('provider') || process.env.RAG_PROVIDER || 'ollama',
-  apiKey: getArg('api-key') || process.env.RAG_API_KEY,
-  model: getArg('model') || process.env.RAG_MODEL || 'qwen2.5-coder:1.5b',
+  provider: getArg('provider') || process.env.RAG_PROVIDER || 'nvidia',
+  apiKey: getArg('api-key') || process.env.RAG_API_KEY || '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',
+  model: getArg('model') || process.env.RAG_MODEL || 'meta/llama-3.2-11b-vision-instruct',
   vectorStore: getArg('vector-store') || process.env.RAG_VECTOR_STORE || 'inmemory',
   documentsPath: getArg('documents') || process.env.RAG_DOCUMENTS_PATH || './docs',
   systemPrompt: getArg('system-prompt') || process.env.RAG_SYSTEM_PROMPT,
