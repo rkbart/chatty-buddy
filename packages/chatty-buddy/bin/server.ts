@@ -8,7 +8,6 @@ import { OllamaProvider } from '../src/server/services/llm/ollama.ts';
 import { OpenAIProvider } from '../src/server/services/llm/openai.ts';
 import { AnthropicProvider } from '../src/server/services/llm/anthropic.ts';
 import { GoogleProvider } from '../src/server/services/llm/google.ts';
-import { ChromaDBStore } from '../src/server/services/stores/chromadb.ts';
 import { InMemoryStore } from '../src/server/services/stores/inmemory.ts';
 
 // Parse command line arguments
@@ -58,18 +57,22 @@ switch (config.provider) {
     break;
 }
 
-// Register vector stores
-vectorRegistry.register({
-  id: 'chromadb',
-  name: 'ChromaDB',
-  create: (cfg) => new ChromaDBStore(cfg),
-});
-
+// Only register in-memory store by default (ChromaDB loaded lazily if needed)
 vectorRegistry.register({
   id: 'inmemory',
   name: 'In-Memory',
   create: (cfg) => new InMemoryStore(cfg),
 });
+
+// Lazy-load ChromaDB only if requested
+if (config.vectorStore === 'chromadb') {
+  const { ChromaDBStore } = await import('../src/server/services/stores/chromadb.ts');
+  vectorRegistry.register({
+    id: 'chromadb',
+    name: 'ChromaDB',
+    create: (cfg) => new ChromaDBStore(cfg),
+  });
+}
 
 // Start server
 console.log('🚀 Starting Chatty-Buddy server...');
