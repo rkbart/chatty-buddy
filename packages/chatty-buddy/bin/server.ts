@@ -16,7 +16,11 @@ const config = resolveConfig(process.argv.slice(2));
 switch (config.provider) {
   case 'nvidia':
     if (config.apiKey) {
-      registry.register(new NvidiaProvider({ apiKey: config.apiKey, model: config.model }));
+      registry.register(new NvidiaProvider({
+        apiKey: config.apiKey,
+        model: config.model,
+        embeddingModel: config.embeddingModel,
+      }));
     }
     break;
   case 'ollama':

@@ -58,6 +58,9 @@ export function getConfigFromArgs(args: string[]): Partial<RagChatbotConfig> {
   const dataDir = getArg('data-dir');
   if (dataDir) config.dataDir = dataDir;
 
+  const embeddingModel = getArg('embedding-model');
+  if (embeddingModel) config.embeddingModel = embeddingModel;
+
   return config;
 }
 
@@ -74,6 +77,7 @@ export function getConfigFromEnv(): Partial<RagChatbotConfig> {
   if (process.env.RAG_MAX_TOKENS) config.maxTokens = parseInt(process.env.RAG_MAX_TOKENS);
   if (process.env.RAG_SERVER_PORT) config.serverPort = parseInt(process.env.RAG_SERVER_PORT);
   if (process.env.RAG_DATA_DIR) config.dataDir = process.env.RAG_DATA_DIR;
+  if (process.env.RAG_EMBEDDING_MODEL) config.embeddingModel = process.env.RAG_EMBEDDING_MODEL;
 
   return config;
 }

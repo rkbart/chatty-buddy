@@ -75,6 +75,9 @@ export interface VectorStore {
 
   /** Cleanup resources */
   destroy(): Promise<void>;
+
+  /** Save document record (for stores with FOREIGN KEY constraints) */
+  saveDocument?(filename: string, hash: string, chunkCount: number, fileSize: number): void;
 }
 
 export interface VectorStoreConfig {

@@ -91,6 +91,11 @@ export async function ingestDocuments(config: RagChatbotConfig): Promise<IngestR
       if (provider?.embed) {
         const embeddings = await provider.embed(chunks.map((c) => c.content));
 
+        // Insert document record first (required for FOREIGN KEY in chunks table)
+        if (store.saveDocument) {
+          store.saveDocument(filename, fileHash, chunks.length, parsed.metadata.size || 0);
+        }
+
         // Store in vector database
         await store.add({
           collection: 'documents',

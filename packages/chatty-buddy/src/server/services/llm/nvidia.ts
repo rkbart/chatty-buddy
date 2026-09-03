@@ -1,6 +1,7 @@
 import type { LLMProvider, Message, ChatOptions, ModelInfo } from '../../types.ts';
 
 const NVIDIA_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const NVIDIA_EMBED_ENDPOINT = 'https://integrate.api.nvidia.com/v1/embeddings';
 
 export class NvidiaProvider implements LLMProvider {
   id = 'nvidia';
@@ -11,14 +12,21 @@ export class NvidiaProvider implements LLMProvider {
       name: 'Llama 3.1 8B',
       maxTokens: 4096,
       supportsStreaming: true,
-      supportsEmbeddings: false,
+      supportsEmbeddings: true,
     },
     {
       id: 'nvidia/llama-3.1-nemotron-70b-instruct',
       name: 'Nemotron 70B',
       maxTokens: 4096,
       supportsStreaming: true,
-      supportsEmbeddings: false,
+      supportsEmbeddings: true,
+    },
+    {
+      id: 'meta/llama-3.2-11b-vision-instruct',
+      name: 'Llama 3.2 11B Vision',
+      maxTokens: 4096,
+      supportsStreaming: true,
+      supportsEmbeddings: true,
     },
   ];
   requiresApiKey = true;
@@ -26,10 +34,34 @@ export class NvidiaProvider implements LLMProvider {
 
   private apiKey: string;
   private model: string;
+  private embeddingModel: string;
 
-  constructor(config: { apiKey: string; model?: string }) {
+  constructor(config: { apiKey: string; model?: string; embeddingModel?: string }) {
     this.apiKey = config.apiKey;
     this.model = config.model || 'meta/llama-3.1-8b-instruct';
+    this.embeddingModel = config.embeddingModel || 'nvidia/nemotron-3-embed-1b';
+  }
+
+  async embed(texts: string[]): Promise<number[][]> {
+    const response = await fetch(NVIDIA_EMBED_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: this.embeddingModel,
+        input: texts,
+        input_type: 'query',
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`NVIDIA embedding error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.data.map((item: { embedding: number[] }) => item.embedding);
   }
 
   async *chat(messages: Message[], options: ChatOptions): AsyncGenerator<string> {

@@ -56,19 +56,7 @@ export function createChatRouter(config: RagChatbotConfig): Router {
       }
 
       // Build system prompt with context
-      const defaultPrompt = `You are a document search assistant. You ONLY answer questions using the exact information found in the CONTEXT below.
-
-CRITICAL RULES - BREAKING THESE IS FORBIDDEN:
-1. You are FORBIDDEN from using any knowledge outside the CONTEXT.
-2. You are FORBIDDEN from explaining concepts not explicitly stated in the CONTEXT.
-3. You are FORBIDDEN from providing examples not in the CONTEXT.
-4. You are FORBIDDEN from saying "I don't have information" - instead say "No information available in the provided context."
-5. You CANNOT answer questions about yourself, your name, or your capabilities.
-6. If a question cannot be answered from the CONTEXT, respond ONLY: "No information available in the provided context."
-7. NEVER add extra information, explanations, or details beyond what's in the CONTEXT.
-8. If CONTEXT is empty, respond ONLY: "No documents available."
-
-YOUR ONLY JOB: Extract and repeat information that EXISTS in the CONTEXT below. Nothing more.`;
+      const defaultPrompt = `You are a helpful assistant. Use the CONTEXT below to answer the question. If the context is empty, say No documents available.`;
 
       const systemPrompt = config.systemPrompt || defaultPrompt;
       const systemMessage: Message = {

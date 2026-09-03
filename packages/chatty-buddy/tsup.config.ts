@@ -10,6 +10,7 @@ export default defineConfig([
     external: ['react', 'react-dom', 'react-markdown'],
     clean: true,
     sourcemap: false,
+    css: false,
   },
   // Server entry (full exports including server)
   {
@@ -31,6 +32,7 @@ export default defineConfig([
     ],
     sourcemap: false,
     splitting: false,
+    css: false,
   },
   // CLI server entry (bundled, with runtime deps as external)
   {
@@ -54,5 +56,6 @@ export default defineConfig([
     banner: {
       js: '#!/usr/bin/env node',
     },
+    css: false,
   },
 ]);
