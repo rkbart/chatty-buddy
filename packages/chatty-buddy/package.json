@@ -1,31 +1,37 @@
 {
   "name": "@chatty-buddy/react",
   "description": "Drop-in React component for RAG-powered chatbots with multi-provider LLM support",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
-  "main": "src/browser.ts",
-  "module": "src/browser.ts",
-  "types": "src/browser.ts",
+  "main": "dist/browser.js",
+  "module": "dist/browser.js",
+  "types": "dist/browser.d.ts",
   "exports": {
     ".": {
-      "types": "./src/browser.ts",
-      "import": "./src/browser.ts",
-      "require": "./src/browser.ts"
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.cjs"
     },
     "./server": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts",
-      "require": "./src/index.ts"
+      "types": "./dist/index.server.d.ts",
+      "import": "./dist/index.server.js",
+      "require": "./dist/index.server.cjs"
     }
   },
   "bin": {
-    "chatty-buddy-server": "./bin/server.ts"
+    "chatty-buddy-server": "./bin/server.js"
   },
   "files": [
-    "src",
+    "dist",
     "bin",
-    "dist"
+    "src"
   ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist"
+  },
   "keywords": [
     "react",
     "chatbot",
@@ -62,6 +68,8 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.0"
   }
 }
