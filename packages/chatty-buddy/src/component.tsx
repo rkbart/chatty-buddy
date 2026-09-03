@@ -3,22 +3,15 @@ import type { RagChatbotProps, Message } from './types.ts';
 import './styles.css';
 
 export function RagChatbot({
-  provider,
-  apiKey,
-  model,
-  vectorStore = 'chromadb',
-  vectorStoreConfig,
-  documentsPath,
+  apiUrl = 'http://localhost:3000',
   position = 'bottom-right',
   theme = 'light',
   title = 'AI Assistant',
   primaryColor = '#007bff',
-  systemPrompt,
-  temperature = 0.7,
-  maxTokens = 1024,
-  showSources = true,
-  serverPort = 3000,
-  dataDir = './.rag-chatbot',
+  placeholder = 'Ask me anything...',
+  className,
+  style,
+  onMessage,
 }: RagChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,13 +23,11 @@ export function RagChatbot({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const serverUrl = `http://localhost:${serverPort}`;
-
   // Check server connection on mount
   useEffect(() => {
     const checkServer = async () => {
       try {
-        const response = await fetch(`${serverUrl}/health`);
+        const response = await fetch(`${apiUrl}/health`);
         if (response.ok) {
           setIsConnected(true);
           setServerError(null);
@@ -44,7 +35,7 @@ export function RagChatbot({
           // Auto-ingest documents
           setIsIngesting(true);
           try {
-            const ingestResponse = await fetch(`${serverUrl}/api/documents/ingest`, {
+            const ingestResponse = await fetch(`${apiUrl}/api/documents/ingest`, {
               method: 'POST',
             });
             if (ingestResponse.ok) {
@@ -57,12 +48,12 @@ export function RagChatbot({
           }
         }
       } catch {
-        setServerError('Server not running. Start the server with: npx @chatty-buddy/server');
+        setServerError('Server not running. Start the server with: npx chatty-buddy-server');
       }
     };
 
     checkServer();
-  }, [serverUrl]);
+  }, [apiUrl]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -85,7 +76,7 @@ export function RagChatbot({
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${serverUrl}/api/chat`, {
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -136,6 +127,11 @@ export function RagChatbot({
           }
         }
       }
+
+      // Call onMessage callback
+      if (onMessage) {
+        onMessage({ role: 'assistant', content: assistantMessage });
+      }
     } catch (error) {
       console.error('Chat error:', error);
       setMessages((prev) => [
@@ -145,12 +141,12 @@ export function RagChatbot({
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, isConnected, messages, serverUrl]);
+  }, [input, isLoading, isConnected, messages, apiUrl, onMessage]);
 
   return (
     <div
-      className={`rag-chatbot rag-chatbot--${position} rag-chatbot--${theme}`}
-      style={{ '--primary-color': primaryColor } as React.CSSProperties}
+      className={`rag-chatbot rag-chatbot--${position} rag-chatbot--${theme}${className ? ` ${className}` : ''}`}
+      style={{ '--primary-color': primaryColor, ...style } as React.CSSProperties}
     >
       {/* Chat widget button */}
       <button
@@ -213,7 +209,7 @@ export function RagChatbot({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask me anything..."
+              placeholder={placeholder}
               disabled={isLoading || !!serverError}
             />
             <button onClick={handleSend} disabled={isLoading || !input.trim() || !!serverError}>

@@ -22,7 +22,7 @@ export function createChatRouter(config: RagChatbotConfig): Router {
 
       // Get vector store for RAG
       const store = vectorRegistry.create(
-        config.vectorStore || 'chromadb',
+        config.vectorStore || 'sqlite',
         config.vectorStoreConfig || {}
       );
 
