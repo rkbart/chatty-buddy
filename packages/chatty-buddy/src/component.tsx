@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Markdown, StreamingMarkdown } from '@deltakit/markdown';
 import type { RagChatbotProps, Message } from './types.ts';
 import './styles.css';
-import '@deltakit/markdown/index.css';
 
 export function RagChatbot({
   apiUrl = 'http://localhost:3000',
