@@ -47,8 +47,9 @@ export function chunkText(
       },
     });
 
+    if (actualEnd >= text.length) break;
     start = actualEnd - chunkOverlap;
-    if (start >= text.length) break;
+    if (start >= actualEnd) start = actualEnd;
     chunkIndex++;
   }
 

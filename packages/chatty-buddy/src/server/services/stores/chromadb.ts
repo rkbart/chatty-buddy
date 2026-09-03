@@ -1,4 +1,3 @@
-import { ChromaClient, Collection } from 'chromadb';
 import type { VectorStore, VectorStoreConfig, AddParams, QueryParams, QueryResult, CollectionStats } from '../../types.ts';
 
 export class ChromaDBStore implements VectorStore {
@@ -7,17 +6,28 @@ export class ChromaDBStore implements VectorStore {
   isLocal = true;
   isPersistent = true;
 
-  private client: ChromaClient;
-  private collection: Collection | null = null;
+  private client: any;
+  private collection: any = null;
 
   constructor(config: VectorStoreConfig) {
-    this.client = new ChromaClient({
-      path: config.path || './.rag-chatbot/chroma',
-    });
+    this.config = config;
+  }
+
+  private config: VectorStoreConfig;
+
+  private async getClient() {
+    if (!this.client) {
+      const { ChromaClient } = await import('chromadb');
+      this.client = new ChromaClient({
+        path: this.config.path || './.rag-chatbot/chroma',
+      });
+    }
+    return this.client;
   }
 
   async init(config: VectorStoreConfig): Promise<void> {
-    this.collection = await this.client.getOrCreateCollection({
+    const client = await this.getClient();
+    this.collection = await client.getOrCreateCollection({
       name: config.collection || 'documents',
       metadata: { 'hnsw:space': 'cosine' },
     });
@@ -49,7 +59,7 @@ export class ChromaDBStore implements VectorStore {
 
     if (!results.ids[0]) return [];
 
-    return results.ids[0].map((id, i) => ({
+    return results.ids[0].map((id: string, i: number) => ({
       id,
       document: results.documents[0]?.[i] || '',
       metadata: (results.metadatas[0]?.[i] as Record<string, unknown>) || {},
@@ -66,16 +76,17 @@ export class ChromaDBStore implements VectorStore {
   }
 
   async clear(collection: string): Promise<void> {
-    await this.client.deleteCollection({ name: collection });
+    const client = await this.getClient();
+    await client.deleteCollection({ name: collection });
   }
 
   async stats(collection: string): Promise<CollectionStats> {
-    const col = await this.client.getCollection({ name: collection });
+    const client = await this.getClient();
+    const col = await client.getCollection({ name: collection });
     return { count: await col.count(), collection };
   }
 
   async destroy(): Promise<void> {
-    // ChromaDB client doesn't have a destroy method
     this.collection = null;
   }
 }

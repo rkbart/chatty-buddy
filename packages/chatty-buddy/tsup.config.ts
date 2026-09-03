@@ -9,12 +9,12 @@ export default defineConfig([
     outDir: 'dist',
     external: ['react', 'react-dom', 'react-markdown'],
     clean: true,
-    sourcemap: true,
+    sourcemap: false,
   },
-  // Server entry (full exports including server) - skip DTS for now
+  // Server entry (full exports including server)
   {
     entry: ['src/index.ts'],
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: false,
     outDir: 'dist',
     outExtension: () => ({ js: '.server.js' }),
@@ -29,6 +29,7 @@ export default defineConfig([
       'pdf-parse',
       'chromadb',
     ],
-    sourcemap: true,
+    sourcemap: false,
+    splitting: false,
   },
 ]);

@@ -22,6 +22,7 @@ export type {
 // Server (for Node.js usage)
 export { startEmbeddedServer } from './server/index.ts';
 export type { ServerInstance } from './server/index.ts';
+export { resolveConfig } from './server/config.ts';
 
 // Providers (for Node.js usage)
 export { registry } from './server/services/llm/registry.ts';
@@ -37,6 +38,7 @@ export { GoogleProvider } from './server/services/llm/google.ts';
 // Store implementations (for Node.js usage)
 export { ChromaDBStore } from './server/services/stores/chromadb.ts';
 export { InMemoryStore } from './server/services/stores/inmemory.ts';
+export { SQLiteStore } from './server/services/stores/sqlite.ts';
 
 // Utilities (for Node.js usage)
 export { chunkText } from './utils/chunker.ts';
