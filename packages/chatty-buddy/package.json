@@ -1,7 +1,7 @@
 {
   "name": "@chatty-buddy/react",
   "description": "Drop-in React component for RAG-powered chatbots with multi-provider LLM support",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "type": "module",
   "main": "dist/browser.js",
   "module": "dist/browser.js",
@@ -19,11 +19,10 @@
     }
   },
   "bin": {
-    "chatty-buddy-server": "./bin/server.js"
+    "chatty-buddy-server": "./dist/server.cli.js"
   },
   "files": [
     "dist",
-    "bin",
     "src"
   ],
   "scripts": {

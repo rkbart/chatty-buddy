@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { startEmbeddedServer } from '../src/server/index.ts';
 import { registry } from '../src/server/services/llm/registry.ts';
 import { vectorRegistry } from '../src/server/services/stores/registry.ts';
