@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Markdown, StreamingMarkdown } from '@deltakit/markdown';
+import Markdown from 'react-markdown';
 import type { RagChatbotProps, Message } from './types.ts';
 import './styles.css';
 
@@ -144,11 +144,6 @@ export function RagChatbot({
     }
   }, [input, isLoading, isConnected, messages, apiUrl, onMessage]);
 
-  // Check if a message is the currently streaming message
-  const isStreamingMessage = (index: number) => {
-    return isLoading && index === messages.length - 1 && messages[index]?.role === 'assistant';
-  };
-
   return (
     <div
       className={`rag-chatbot rag-chatbot--${position} rag-chatbot--${theme}${className ? ` ${className}` : ''}`}
@@ -193,11 +188,7 @@ export function RagChatbot({
               <div key={i} className={`rag-chatbot__message rag-chatbot__message--${msg.role}`}>
                 <div className="rag-chatbot__message-content">
                   {msg.role === 'assistant' ? (
-                    isStreamingMessage(i) ? (
-                      <StreamingMarkdown content={msg.content} />
-                    ) : (
-                      <Markdown content={msg.content} />
-                    )
+                    <Markdown>{msg.content}</Markdown>
                   ) : (
                     msg.content
                   )}
