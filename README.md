@@ -5,10 +5,11 @@ A drop-in React component for RAG-powered chatbots with multi-provider LLM suppo
 ## Features
 
 - 🤖 Multiple LLM providers (NVIDIA, Ollama, OpenAI, Anthropic, Google)
-- 🗄️ Pluggable vector stores (ChromaDB, Qdrant, In-Memory)
+- 🗄️ Built-in SQLite vector store (persistent, no external DB needed)
 - 📄 Smart incremental document ingestion
-- 💬 Embeddable, responsive chat interface
+- 💬 Embeddable, responsive chat interface with markdown rendering
 - 🎨 Customizable themes and positions
+- 📝 Streaming markdown support (code blocks, lists, tables, etc.)
 
 ## Quick Start
 
@@ -32,7 +33,26 @@ Place your documents in a folder:
 └── data.txt
 ```
 
-### 3. Use Component
+### 3. Create Config File
+
+Create `.chatty-buddy.json` in your project root:
+
+```json
+{
+  "provider": "nvidia",
+  "apiKey": "your-api-key",
+  "model": "meta/llama-3.2-11b-vision-instruct",
+  "documentsPath": "./docs"
+}
+```
+
+### 4. Start Server
+
+```bash
+npx chatty-buddy-server
+```
+
+### 5. Use Component
 
 ```tsx
 import { RagChatbot } from '@chatty-buddy/react';
@@ -40,15 +60,59 @@ import { RagChatbot } from '@chatty-buddy/react';
 function App() {
   return (
     <RagChatbot
-      provider="nvidia"
-      apiKey={process.env.NVIDIA_API_KEY}
-      model="meta/llama-3.1-8b-instruct"
-      documentsPath="./docs"
+      apiUrl="http://localhost:3000"
       position="bottom-right"
       theme="light"
+      title="Support Bot"
     />
   );
 }
+```
+
+## Component Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `apiUrl` | `string` | `http://localhost:3000` | Backend API URL |
+| `position` | `string` | `bottom-right` | Widget position |
+| `theme` | `string` | `light` | Theme (light/dark) |
+| `title` | `string` | `AI Assistant` | Chat title |
+| `primaryColor` | `string` | `#007bff` | Accent color |
+| `placeholder` | `string` | `Ask me anything...` | Input placeholder |
+| `className` | `string` | - | Additional CSS class |
+| `style` | `CSSProperties` | - | Additional inline styles |
+| `onMessage` | `(msg) => void` | - | Callback when message received |
+
+## Server Configuration
+
+### Config File (`.chatty-buddy.json`)
+
+```json
+{
+  "provider": "nvidia",
+  "apiKey": "your-api-key",
+  "model": "meta/llama-3.2-11b-vision-instruct",
+  "vectorStore": "sqlite",
+  "documentsPath": "./docs",
+  "port": 3000,
+  "systemPrompt": "Answer based on the provided documents only."
+}
+```
+
+### Environment Variables
+
+```bash
+RAG_PROVIDER=nvidia
+RAG_API_KEY=your-api-key
+RAG_MODEL=meta/llama-3.2-11b-vision-instruct
+RAG_DOCUMENTS_PATH=./docs
+RAG_SERVER_PORT=3000
+```
+
+### CLI Arguments
+
+```bash
+npx chatty-buddy-server --provider nvidia --api-key your-key --port 3000
 ```
 
 ## Free Options
@@ -63,83 +127,65 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.1
 ```
 
-```tsx
-<RagChatbot
-  provider="ollama"
-  model="llama3.1"
-  documentsPath="./docs"
-/>
+```json
+{
+  "provider": "ollama",
+  "model": "llama3.1",
+  "documentsPath": "./docs"
+}
 ```
 
-### NVIDIA/Nemotron (Free Tier)
+### NVIDIA (Free Tier)
 
 Get free API key at https://build.nvidia.com
 
-```tsx
-<RagChatbot
-  provider="nvidia"
-  apiKey="nvapi-xxx"
-  model="meta/llama-3.1-8b-instruct"
-  documentsPath="./docs"
-/>
+```json
+{
+  "provider": "nvidia",
+  "apiKey": "nvapi-xxx",
+  "model": "meta/llama-3.2-11b-vision-instruct",
+  "documentsPath": "./docs"
+}
 ```
 
 ### Google Gemini (Free Tier)
 
 Get free API key at https://aistudio.google.com
 
-```tsx
-<RagChatbot
-  provider="google"
-  apiKey="xxx"
-  model="gemini-1.5-flash"
-  documentsPath="./docs"
-/>
+```json
+{
+  "provider": "google",
+  "apiKey": "xxx",
+  "model": "gemini-1.5-flash",
+  "documentsPath": "./docs"
+}
 ```
 
-## Configuration
+## Markdown Support
 
-### Props
+The chat component renders markdown in assistant responses, including:
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `provider` | `string` | required | LLM provider ID |
-| `apiKey` | `string` | - | API key (required for non-local providers) |
-| `model` | `string` | provider default | Model ID |
-| `vectorStore` | `string` | `chromadb` | Vector store ID |
-| `documentsPath` | `string` | required | Path to documents folder |
-| `position` | `string` | `bottom-right` | Widget position |
-| `theme` | `string` | `light` | Theme (light/dark/auto) |
-| `title` | `string` | `AI Assistant` | Chat title |
-| `primaryColor` | `string` | `#007bff` | Accent color |
-| `systemPrompt` | `string` | - | Custom system prompt |
-| `temperature` | `number` | `0.7` | Generation temperature |
-| `maxTokens` | `number` | `1024` | Max response tokens |
-| `showSources` | `boolean` | `true` | Show source citations |
-| `chunkSize` | `number` | `500` | Text chunk size |
-| `chunkOverlap` | `number` | `50` | Chunk overlap |
-| `topK` | `number` | `5` | Number of context chunks |
-| `serverPort` | `number` | auto | Server port |
-| `dataDir` | `string` | `./.rag-chatbot` | Data directory |
+- **Bold** and *italic* text
+- `Inline code` and code blocks
+- Bullet and numbered lists
+- Tables
+- Blockquotes
+- Headings
+- Links
 
-### Supported Providers
+Markdown is streamed without flickering using `@deltakit/markdown`.
+
+## Supported Providers
 
 | Provider | Free? | Models |
 |----------|-------|--------|
-| NVIDIA | ✅ | llama-3.1-8b, nemotron-70b |
+| NVIDIA | ✅ | llama-3.2-11b, llama-3.1-8b |
 | Ollama | ✅ | llama3.1, mistral, codellama, phi3 |
-| OpenAI | ❌ | gpt-4o, gpt-4o-mini, gpt-4-turbo |
+| OpenAI | ❌ | gpt-4o, gpt-4o-mini |
 | Anthropic | ❌ | claude-3-5-sonnet, claude-3-5-haiku |
 | Google | ✅ | gemini-1.5-flash, gemini-1.5-pro |
 
-### Supported Vector Stores
-
-| Store | Local | Persistent | Best For |
-|-------|-------|------------|----------|
-| ChromaDB | ✅ | ✅ | Development, small projects |
-| In-Memory | ✅ | ❌ | Testing, prototyping |
-
-### Supported Document Types
+## Supported Document Types
 
 - PDF
 - DOCX
@@ -148,45 +194,20 @@ Get free API key at https://aistudio.google.com
 - HTML
 - CSV
 
-## Advanced Usage
+## Database
 
-### Custom System Prompt
+Chatty-Buddy uses SQLite as its built-in vector store:
 
-```tsx
-<RagChatbot
-  provider="ollama"
-  documentsPath="./docs"
-  systemPrompt="You are a helpful assistant for our company. Answer questions based on the provided documents. Always cite your sources."
-/>
-```
-
-### Custom Theme
-
-```tsx
-<RagChatbot
-  provider="ollama"
-  documentsPath="./docs"
-  primaryColor="#8b5cf6"
-  theme="dark"
-  position="bottom-left"
-/>
-```
-
-### In-Memory Store (for testing)
-
-```tsx
-<RagChatbot
-  provider="ollama"
-  documentsPath="./docs"
-  vectorStore="inmemory"
-/>
-```
+- **Persistent**: Documents survive server restarts
+- **No external DB**: No ChromaDB, Pinecone, or Postgres required
+- **Automatic**: Database is created automatically on first run
+- **Location**: `.chatty-buddy/data.db`
 
 ## Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/chatty-buddy.git
+git clone https://github.com/rkbart/chatty-buddy.git
 cd chatty-buddy
 
 # Install dependencies
