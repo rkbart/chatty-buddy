@@ -9,7 +9,7 @@ A drop-in React component for RAG-powered chatbots with multi-provider LLM suppo
 - 📄 Smart incremental document ingestion
 - 💬 Embeddable, responsive chat interface with markdown rendering
 - 🎨 Customizable themes and positions
-- 📝 Streaming markdown support (code blocks, lists, tables, etc.)
+- 📝 Markdown support (code blocks, lists, tables, etc.)
 
 ## Quick Start
 
@@ -17,23 +17,9 @@ A drop-in React component for RAG-powered chatbots with multi-provider LLM suppo
 
 ```bash
 npm install @chatty-buddy/react
-# or
-pnpm add @chatty-buddy/react
 ```
 
-### 2. Add Documents
-
-Place your documents in a folder:
-
-```
-./docs/
-├── handbook.pdf
-├── manual.docx
-├── faq.md
-└── data.txt
-```
-
-### 3. Create Config File
+### 2. Create Config File
 
 Create `.chatty-buddy.json` in your project root:
 
@@ -44,6 +30,20 @@ Create `.chatty-buddy.json` in your project root:
   "model": "meta/llama-3.2-11b-vision-instruct",
   "documentsPath": "./docs"
 }
+```
+
+### 3. Add Documents
+
+Place your documents in a folder:
+
+```
+your-app/
+├── docs/
+│   ├── faq.md
+│   └── product.txt
+├── .chatty-buddy.json
+└── src/
+    └── App.tsx
 ```
 
 ### 4. Start Server
@@ -61,9 +61,9 @@ function App() {
   return (
     <RagChatbot
       apiUrl="http://localhost:3000"
-      position="bottom-right"
-      theme="light"
       title="Support Bot"
+      theme="dark"
+      position="bottom-right"
     />
   );
 }
@@ -75,13 +75,13 @@ function App() {
 |------|------|---------|-------------|
 | `apiUrl` | `string` | `http://localhost:3000` | Backend API URL |
 | `position` | `string` | `bottom-right` | Widget position |
-| `theme` | `string` | `light` | Theme (light/dark) |
-| `title` | `string` | `AI Assistant` | Chat title |
+| `theme` | `string` | `light` | `light` or `dark` |
+| `title` | `string` | `AI Assistant` | Chat header title |
 | `primaryColor` | `string` | `#007bff` | Accent color |
 | `placeholder` | `string` | `Ask me anything...` | Input placeholder |
 | `className` | `string` | - | Additional CSS class |
-| `style` | `CSSProperties` | - | Additional inline styles |
-| `onMessage` | `(msg) => void` | - | Callback when message received |
+| `style` | `CSSProperties` | - | Inline styles |
+| `onMessage` | `(msg) => void` | - | Callback on response |
 
 ## Server Configuration
 
@@ -161,20 +161,6 @@ Get free API key at https://aistudio.google.com
 }
 ```
 
-## Markdown Support
-
-The chat component renders markdown in assistant responses, including:
-
-- **Bold** and *italic* text
-- `Inline code` and code blocks
-- Bullet and numbered lists
-- Tables
-- Blockquotes
-- Headings
-- Links
-
-Markdown is streamed without flickering using `@deltakit/markdown`.
-
 ## Supported Providers
 
 | Provider | Free? | Models |
@@ -213,11 +199,11 @@ cd chatty-buddy
 # Install dependencies
 pnpm install
 
-# Run tests
-pnpm test
-
 # Build
 pnpm build
+
+# Run tests
+pnpm test
 ```
 
 ## License
