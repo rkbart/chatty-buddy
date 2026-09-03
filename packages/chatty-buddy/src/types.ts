@@ -140,44 +140,14 @@ export interface EmbeddingProvider {
 
 // Component Types
 export interface RagChatbotProps {
-  /** LLM provider ID */
-  provider: string;
-
-  /** API key (required for non-local providers) */
-  apiKey?: string;
-
-  /** Model ID (default depends on provider) */
-  model?: string;
-
-  /** Vector store ID */
-  vectorStore?: string;
-
-  /** Vector store configuration */
-  vectorStoreConfig?: VectorStoreConfig;
-
-  /** Path to documents folder */
-  documentsPath: string;
-
-  /** Embedding provider ID */
-  embeddingProvider?: string;
-
-  /** Embedding model ID */
-  embeddingModel?: string;
-
-  /** Text chunk size (default: 500) */
-  chunkSize?: number;
-
-  /** Chunk overlap (default: 50) */
-  chunkOverlap?: number;
-
-  /** Number of similar chunks to retrieve (default: 5) */
-  topK?: number;
+  /** Backend API URL (default: http://localhost:3000) */
+  apiUrl?: string;
 
   /** Widget position */
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'full';
 
   /** Theme */
-  theme?: 'light' | 'dark' | 'auto';
+  theme?: 'light' | 'dark';
 
   /** Chat title */
   title?: string;
@@ -185,23 +155,17 @@ export interface RagChatbotProps {
   /** Primary accent color */
   primaryColor?: string;
 
-  /** Custom system prompt */
-  systemPrompt?: string;
+  /** Input placeholder text */
+  placeholder?: string;
 
-  /** Generation temperature */
-  temperature?: number;
+  /** Additional CSS class name */
+  className?: string;
 
-  /** Max response tokens */
-  maxTokens?: number;
+  /** Additional inline styles */
+  style?: React.CSSProperties;
 
-  /** Show source citations */
-  showSources?: boolean;
-
-  /** Server port (default: auto) */
-  serverPort?: number;
-
-  /** Data directory (default: ./.rag-chatbot) */
-  dataDir?: string;
+  /** Callback when assistant responds */
+  onMessage?: (message: Message) => void;
 }
 
 // Server Configuration
