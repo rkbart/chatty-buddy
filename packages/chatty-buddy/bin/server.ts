@@ -74,14 +74,13 @@ console.log(`✅ Server running on http://localhost:${server.port}`);
 console.log('   Press Ctrl+C to stop');
 
 // Handle shutdown
-process.on('SIGINT', async () => {
+const shutdown = async () => {
   console.log('\n🛑 Shutting down...');
   await server.close();
   process.exit(0);
-});
+};
 
-process.on('SIGTERM', async () => {
-  console.log('\n🛑 Shutting down...');
-  await server.close();
-  process.exit(0);
-});
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+// Ignore SIGHUP (sent when terminal closes) — keep running in background
+process.on('SIGHUP', () => {});
