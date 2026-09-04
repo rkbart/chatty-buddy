@@ -223,15 +223,143 @@ Get free API key at https://aistudio.google.com
 - HTML
 - CSV
 
-## API Endpoints
+## Integration
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/chat` | Send a chat message |
-| `GET` | `/api/documents` | List ingested documents |
-| `POST` | `/api/documents/ingest` | Ingest new/changed files |
-| `POST` | `/api/documents/ingest?force=true` | Force re-ingest all files |
-| `DELETE` | `/api/documents/:filename` | Delete a document |
+### Standalone Server (Quick Start)
+
+```bash
+npx chatty-buddy-server --provider nvidia --api-key your-key --documents ./docs
+```
+
+### Express Middleware (Recommended for Production)
+
+Mount Chatty-Buddy routes in your existing Express app:
+
+```ts
+import express from 'express';
+import {
+  createChatRouter,
+  createDocumentsRouter,
+  createConfigRouter,
+  ingestDocuments,
+} from '@chatty-buddy/react/server';
+
+const app = express();
+app.use(express.json());
+
+const config = {
+  provider: 'nvidia',
+  apiKey: process.env.NVIDIA_API_KEY,
+  model: 'meta/llama-3.2-11b-vision-instruct',
+  documentsPath: './docs',
+};
+
+// Mount Chatty-Buddy routes
+app.use('/api', createChatRouter(config));
+app.use('/api', createDocumentsRouter(config));
+app.use('/api', createConfigRouter(config));
+
+// Ingest documents on startup
+await ingestDocuments(config);
+
+app.listen(3000);
+```
+
+### Other Backends (Rails, Python, Go, etc.)
+
+The React component is backend-agnostic — it just needs these endpoints:
+
+#### `POST /api/chat`
+
+Sends messages and receives a streamed response via Server-Sent Events (SSE).
+
+**Request:**
+```json
+{
+  "messages": [
+    { "role": "user", "content": "What is the return policy?" }
+  ]
+}
+```
+
+**Response:** `Content-Type: text/event-stream`
+
+```
+event: token
+data: {"token":"The"}
+
+event: token
+data: {"token":" return"}
+
+event: token
+data: {"token":" policy"}
+
+...
+
+event: done
+data: {"fullReply":"The return policy allows..."}
+```
+
+**Implementation notes:**
+- Embed the last user message using your embedding provider
+- Query your vector store for the top 3 most similar chunks
+- Build a system prompt with the retrieved context
+- Stream LLM tokens as SSE `token` events
+- Send a final `done` event with the full reply
+
+#### `GET /api/documents`
+
+Returns all ingested documents.
+
+**Response:**
+```json
+{
+  "documents": [
+    {
+      "filename": "faq.md",
+      "hash": "abc123...",
+      "chunks": 4,
+      "size": 1415,
+      "ingestedAt": "2026-09-04T02:37:15.057Z"
+    }
+  ]
+}
+```
+
+#### `POST /api/documents/ingest`
+
+Triggers document ingestion from the configured `documentsPath`. Optional `?force=true` to re-ingest all files.
+
+**Query params:** `force` (optional, default `false`)
+
+**Response:**
+```json
+{
+  "ingested": ["new-file.md"],
+  "skipped": ["unchanged.md"],
+  "deleted": ["removed.md"],
+  "updated": ["modified.md"],
+  "errors": []
+}
+```
+
+#### `DELETE /api/documents/:filename`
+
+Deletes a document and its vectors.
+
+**Response:**
+```json
+{
+  "success": true,
+  "deleted": "faq.md"
+}
+```
+
+**Implementation notes for other backends:**
+- The chat endpoint must support SSE streaming (`text/event-stream`)
+- Vector store must support: `add`, `query` (with metadata filter), `delete`
+- Document ingestion needs: file reading, text parsing (PDF/DOCX/MD/TXT/HTML/CSV), chunking, embedding generation
+- SHA-256 file hashing for change detection (compare against stored hash)
 
 ## Database
 

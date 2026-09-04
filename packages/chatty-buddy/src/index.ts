@@ -24,6 +24,12 @@ export { startEmbeddedServer } from './server/index.ts';
 export type { ServerInstance } from './server/index.ts';
 export { resolveConfig } from './server/config.ts';
 
+// Express middleware (for integrating into existing Express apps)
+export { createChatRouter } from './server/routes/chat.ts';
+export { createDocumentsRouter } from './server/routes/documents.ts';
+export { createConfigRouter } from './server/routes/config.ts';
+export { ingestDocuments, listDocuments, deleteDocument } from './server/services/ingestion.ts';
+
 // Providers (for Node.js usage)
 export { registry } from './server/services/llm/registry.ts';
 export { vectorRegistry } from './server/services/stores/registry.ts';
