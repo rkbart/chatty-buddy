@@ -16,10 +16,11 @@ export function createDocumentsRouter(config: RagChatbotConfig): Router {
     }
   });
 
-  // Ingest documents
-  router.post('/documents/ingest', async (_req: Request, res: Response) => {
+  // Ingest documents (optional ?force=true to re-ingest all)
+  router.post('/documents/ingest', async (req: Request, res: Response) => {
     try {
-      const results = await ingestDocuments(config);
+      const force = req.query.force === 'true';
+      const results = await ingestDocuments(config, force);
       res.json(results);
     } catch (error) {
       console.error('Ingest documents error:', error);
@@ -30,7 +31,7 @@ export function createDocumentsRouter(config: RagChatbotConfig): Router {
   // Delete document
   router.delete('/documents/:filename', async (req: Request, res: Response) => {
     try {
-      const { filename } = req.params;
+      const filename = decodeURIComponent(req.params.filename);
       await deleteDocument(config, filename);
       res.json({ success: true, deleted: filename });
     } catch (error) {

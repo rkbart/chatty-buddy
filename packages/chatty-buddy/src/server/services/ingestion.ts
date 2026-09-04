@@ -20,21 +20,38 @@ export interface IngestResult {
   ingested: string[];
   skipped: string[];
   deleted: string[];
+  updated: string[];
   errors: { filename: string; error: string }[];
 }
 
-export async function ingestDocuments(config: RagChatbotConfig): Promise<IngestResult> {
+/** Delete all vectors for a given filename from the vector store */
+async function deleteVectorsForFile(
+  store: Awaited<ReturnType<typeof vectorRegistry.create>>,
+  filename: string
+): Promise<void> {
+  const results = await store.query({
+    collection: 'documents',
+    embedding: [0],
+    topK: 10000,
+    filter: { filename },
+  });
+
+  if (results.length > 0) {
+    await store.delete(results.map((r) => r.id));
+  }
+}
+
+export async function ingestDocuments(
+  config: RagChatbotConfig,
+  force: boolean = false
+): Promise<IngestResult> {
   const documentsPath = config.documentsPath;
   if (!documentsPath || !existsSync(documentsPath)) {
-    return { ingested: [], skipped: [], deleted: [], errors: [] };
+    return { ingested: [], skipped: [], deleted: [], updated: [], errors: [] };
   }
 
   const files = await readdir(documentsPath);
   const supportedFiles = files.filter(isSupportedFile);
-
-  if (supportedFiles.length === 0) {
-    return { ingested: [], skipped: [], deleted: [], errors: [] };
-  }
 
   // Get vector store
   const store = vectorRegistry.create(
@@ -50,13 +67,19 @@ export async function ingestDocuments(config: RagChatbotConfig): Promise<IngestR
     ingested: [],
     skipped: [],
     deleted: [],
+    updated: [],
     errors: [],
   };
 
-  // Check for deleted files
+  // Check for deleted files — remove from vector store AND manifest
   const ingestedFiles = getIngestedFiles(manifest);
   for (const ingestedFile of ingestedFiles) {
     if (!supportedFiles.includes(ingestedFile)) {
+      try {
+        await deleteVectorsForFile(store, ingestedFile);
+      } catch (error) {
+        console.error(`Error deleting vectors for ${ingestedFile}:`, error);
+      }
       removeFileFromManifest(manifest, ingestedFile);
       results.deleted.push(ingestedFile);
     }
@@ -69,10 +92,20 @@ export async function ingestDocuments(config: RagChatbotConfig): Promise<IngestR
       const fileBuffer = await readFile(filePath);
       const fileHash = calculateFileHash(fileBuffer);
 
-      // Check if file has changed
-      if (!hasFileChanged(manifest, filename, fileHash)) {
+      // Check if file has changed (or force re-ingest)
+      if (!force && !hasFileChanged(manifest, filename, fileHash)) {
         results.skipped.push(filename);
         continue;
+      }
+
+      // If file changed, delete old vectors first
+      if (hasFileChanged(manifest, filename, fileHash)) {
+        try {
+          await deleteVectorsForFile(store, filename);
+        } catch (error) {
+          console.error(`Error deleting old vectors for ${filename}:`, error);
+        }
+        results.updated.push(filename);
       }
 
       // Parse document
@@ -111,7 +144,9 @@ export async function ingestDocuments(config: RagChatbotConfig): Promise<IngestR
 
       // Update manifest
       addFileToManifest(manifest, filename, fileHash, chunks.length, parsed.metadata.size);
-      results.ingested.push(filename);
+      if (!results.updated.includes(filename)) {
+        results.ingested.push(filename);
+      }
     } catch (error) {
       results.errors.push({
         filename,
@@ -149,16 +184,8 @@ export async function deleteDocument(config: RagChatbotConfig, filename: string)
   );
   await store.init({ collection: 'documents' });
 
-  // Get all vectors for this file
-  const results = await store.query({
-    collection: 'documents',
-    embedding: [0], // Dummy embedding
-    topK: 10000,
-    filter: { filename },
-  });
-
-  // Delete vectors
-  await store.delete(results.map((r) => r.id));
+  // Delete vectors from store
+  await deleteVectorsForFile(store, filename);
 
   // Update manifest
   const manifest = await loadManifest(config.dataDir || './.chatty-buddy');
