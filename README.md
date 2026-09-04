@@ -6,7 +6,8 @@ A drop-in React component for RAG-powered chatbots with multi-provider LLM suppo
 
 - 🤖 Multiple LLM providers (NVIDIA, Ollama, OpenAI, Anthropic, Google)
 - 🗄️ Built-in SQLite vector store (persistent, no external DB needed)
-- 📄 Smart incremental document ingestion
+- 📄 Smart incremental document ingestion with change detection
+- 🗑️ Automatic vector cleanup on file delete/update
 - 💬 Embeddable, responsive chat interface with markdown rendering
 - 🎨 Customizable themes and positions
 - 📝 Markdown support (code blocks, lists, tables, etc.)
@@ -56,6 +57,7 @@ npx chatty-buddy-server
 
 ```tsx
 import { RagChatbot } from '@chatty-buddy/react';
+import '@chatty-buddy/react/styles.css';
 
 function App() {
   return (
@@ -67,6 +69,37 @@ function App() {
     />
   );
 }
+```
+
+## Document Management
+
+### Update Documents
+
+When you add, modify, or delete files in your `docs/` folder, re-sync the bot:
+
+```bash
+# Re-ingest changed files
+curl -X POST http://localhost:3000/api/documents/ingest
+
+# Force re-ingest ALL files (ignore hash)
+curl -X POST "http://localhost:3000/api/documents/ingest?force=true"
+```
+
+The server detects changes via SHA-256 content hashing. On re-ingest:
+- **Changed files**: Old vectors deleted, new ones inserted
+- **Deleted files**: Vectors removed from vector store
+- **Unchanged files**: Skipped (no work done)
+
+### Delete a Document
+
+```bash
+curl -X DELETE http://localhost:3000/api/documents/faq.md
+```
+
+### List Ingested Documents
+
+```bash
+curl http://localhost:3000/api/documents
 ```
 
 ## Component Props
@@ -94,9 +127,24 @@ function App() {
   "model": "meta/llama-3.2-11b-vision-instruct",
   "vectorStore": "sqlite",
   "documentsPath": "./docs",
+  "embeddingModel": "nvidia/nemotron-3-embed-1b",
+  "chunkSize": 500,
+  "chunkOverlap": 50,
   "port": 3000,
   "systemPrompt": "Answer based on the provided documents only."
 }
+```
+
+### CLI Arguments
+
+```bash
+npx chatty-buddy-server \
+  --provider nvidia \
+  --api-key your-key \
+  --model meta/llama-3.2-11b-vision-instruct \
+  --embedding-model nvidia/nemotron-3-embed-1b \
+  --documents ./docs \
+  --port 3000
 ```
 
 ### Environment Variables
@@ -105,14 +153,9 @@ function App() {
 RAG_PROVIDER=nvidia
 RAG_API_KEY=your-api-key
 RAG_MODEL=meta/llama-3.2-11b-vision-instruct
+RAG_EMBEDDING_MODEL=nvidia/nemotron-3-embed-1b
 RAG_DOCUMENTS_PATH=./docs
 RAG_SERVER_PORT=3000
-```
-
-### CLI Arguments
-
-```bash
-npx chatty-buddy-server --provider nvidia --api-key your-key --port 3000
 ```
 
 ## Free Options
@@ -163,13 +206,13 @@ Get free API key at https://aistudio.google.com
 
 ## Supported Providers
 
-| Provider | Free? | Models |
-|----------|-------|--------|
-| NVIDIA | ✅ | llama-3.2-11b, llama-3.1-8b |
-| Ollama | ✅ | llama3.1, mistral, codellama, phi3 |
-| OpenAI | ❌ | gpt-4o, gpt-4o-mini |
-| Anthropic | ❌ | claude-3-5-sonnet, claude-3-5-haiku |
-| Google | ✅ | gemini-1.5-flash, gemini-1.5-pro |
+| Provider | Free? | Embeddings? | Models |
+|----------|-------|-------------|--------|
+| NVIDIA | ✅ | ✅ | llama-3.2-11b, llama-3.1-8b |
+| Ollama | ✅ | ❌ | llama3.1, mistral, codellama, phi3 |
+| OpenAI | ❌ | ✅ | gpt-4o, gpt-4o-mini |
+| Anthropic | ❌ | ❌ | claude-3-5-sonnet, claude-3-5-haiku |
+| Google | ✅ | ❌ | gemini-1.5-flash, gemini-1.5-pro |
 
 ## Supported Document Types
 
@@ -180,6 +223,16 @@ Get free API key at https://aistudio.google.com
 - HTML
 - CSV
 
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/chat` | Send a chat message |
+| `GET` | `/api/documents` | List ingested documents |
+| `POST` | `/api/documents/ingest` | Ingest new/changed files |
+| `POST` | `/api/documents/ingest?force=true` | Force re-ingest all files |
+| `DELETE` | `/api/documents/:filename` | Delete a document |
+
 ## Database
 
 Chatty-Buddy uses SQLite as its built-in vector store:
@@ -188,6 +241,8 @@ Chatty-Buddy uses SQLite as its built-in vector store:
 - **No external DB**: No ChromaDB, Pinecone, or Postgres required
 - **Automatic**: Database is created automatically on first run
 - **Location**: `.chatty-buddy/data.db`
+- **Change detection**: SHA-256 content hashing (not mtime)
+- **Vector cleanup**: Old vectors auto-deleted on file update/delete
 
 ## Development
 
