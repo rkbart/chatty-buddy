@@ -2,6 +2,9 @@
 
 A drop-in React component for RAG-powered chatbots with multi-provider LLM support.
 
+> 📚 **New to the codebase?** Read the [Codebase Wiki](./wiki/Home.md) — architecture, request flows, component/function reference, and design decisions explained for beginners.
+
+
 ## Features
 
 - 🤖 Multiple LLM providers (NVIDIA, Ollama, OpenAI, Anthropic, Google)
