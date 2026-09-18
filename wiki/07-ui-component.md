@@ -12,6 +12,9 @@ One self-contained React function component: **`<RagChatbot />`** (~230 lines + 
 | `title` | `string` | `AI Assistant` | Header text |
 | `primaryColor` | `string` | `#007bff` | Set as CSS var `--primary-color` |
 | `placeholder` | `string` | `Ask me anything...` | Input placeholder |
+| `showAbout` | `boolean` | `true` | Show ⓘ About button in header |
+| `buyMeACoffeeUrl` | `string` | `https://buymeacoffee.com/rkbart` | Support link in About panel (`''` hides it) |
+| `about` | `string` | - | Custom About panel text |
 | `className`, `style` | — | — | Escape hatches for host apps |
 | `onMessage` | `(msg: Message) => void` | — | Fired with each *complete* assistant reply |
 

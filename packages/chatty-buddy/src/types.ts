@@ -161,6 +161,15 @@ export interface RagChatbotProps {
   /** Input placeholder text */
   placeholder?: string;
 
+  /** Show the About panel (ⓘ button in header). Default: true */
+  showAbout?: boolean;
+
+  /** Buy Me a Coffee link shown in the About panel. Set to '' to hide. Default: https://buymeacoffee.com/rkbart */
+  buyMeACoffeeUrl?: string;
+
+  /** Custom about text (rendered as plain text). Defaults to a generic blurb */
+  about?: string;
+
   /** Additional CSS class name */
   className?: string;
 

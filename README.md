@@ -115,6 +115,9 @@ curl http://localhost:3000/api/documents
 | `title` | `string` | `AI Assistant` | Chat header title |
 | `primaryColor` | `string` | `#007bff` | Accent color |
 | `placeholder` | `string` | `Ask me anything...` | Input placeholder |
+| `showAbout` | `boolean` | `true` | Show ⓘ About button in header |
+| `buyMeACoffeeUrl` | `string` | `https://buymeacoffee.com/rkbart` | Support link in About panel (`''` hides it) |
+| `about` | `string` | - | Custom About panel text |
 | `className` | `string` | - | Additional CSS class |
 | `style` | `CSSProperties` | - | Inline styles |
 | `onMessage` | `(msg) => void` | - | Callback on response |

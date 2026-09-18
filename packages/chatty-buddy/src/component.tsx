@@ -10,6 +10,9 @@ export function RagChatbot({
   title = 'AI Assistant',
   primaryColor = '#007bff',
   placeholder = 'Ask me anything...',
+  showAbout = true,
+  buyMeACoffeeUrl = 'https://buymeacoffee.com/rkbart',
+  about,
   className,
   style,
   onMessage,
@@ -21,6 +24,7 @@ export function RagChatbot({
   const [serverError, setServerError] = useState<string | null>(null);
   const [isIngesting, setIsIngesting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const [showAboutPanel, setShowAboutPanel] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -152,7 +156,10 @@ export function RagChatbot({
       {/* Chat widget button */}
       <button
         className="rag-chatbot__toggle"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (isOpen) setShowAboutPanel(false);
+          setIsOpen(!isOpen);
+        }}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
         {isOpen ? '×' : '💬'}
@@ -165,7 +172,22 @@ export function RagChatbot({
             <h3>{title}</h3>
             <div className="rag-chatbot__header-actions">
               {isIngesting && <span className="rag-chatbot__ingesting">📚 Indexing...</span>}
-              <button onClick={() => setIsOpen(false)} aria-label="Close">
+              {showAbout && (
+                <button
+                  className="rag-chatbot__header-about"
+                  onClick={() => setShowAboutPanel(true)}
+                  aria-label="About"
+                >
+                  ⓘ
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setShowAboutPanel(false);
+                  setIsOpen(false);
+                }}
+                aria-label="Close"
+              >
                 ×
               </button>
             </div>
@@ -223,6 +245,47 @@ export function RagChatbot({
               {isLoading ? '...' : '→'}
             </button>
           </div>
+
+          {/* About panel */}
+          {showAbout && showAboutPanel && (
+            <div className="rag-chatbot__about" role="dialog" aria-label="About">
+              <div className="rag-chatbot__about-header">
+                <button
+                  className="rag-chatbot__about-back"
+                  onClick={() => setShowAboutPanel(false)}
+                  aria-label="Back to chat"
+                >
+                  ←
+                </button>
+                <h3>About</h3>
+              </div>
+              <div className="rag-chatbot__about-body">
+                <p className="rag-chatbot__about-title">{title}</p>
+                <p className="rag-chatbot__about-text">
+                  {about ?? 'A private AI assistant powered by chatty-buddy.'}
+                </p>
+                {buyMeACoffeeUrl && (
+                  <a
+                    className="rag-chatbot__about-coffee"
+                    href={buyMeACoffeeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="rag-chatbot__about-coffee-icon" aria-hidden="true">
+                      ☕
+                    </span>
+                    <span className="rag-chatbot__about-coffee-text">
+                      <strong>Buy me a coffee</strong>
+                      <span>Support the developer of this assistant</span>
+                    </span>
+                    <span className="rag-chatbot__about-coffee-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
