@@ -43,7 +43,7 @@ interface LLMProvider {
 }
 ```
 
-If `embed` is absent, the system silently runs **without RAG** (ingestion skips storing; chat skips retrieval).
+If `embed` is absent, the system silently runs **without RAG** (ingestion skips storing; chat skips retrieval). This applies to **Anthropic** and **Google** — they support chat but not embeddings, so they run without RAG unless paired with a separate embedding-capable provider.
 
 ### Provider implementations
 
@@ -52,8 +52,8 @@ If `embed` is absent, the system silently runs **without RAG** (ingestion skips 
 | `NvidiaProvider` (`nvidia`) | `https://integrate.api.nvidia.com/v1/chat/completions` | OpenAI-style SSE: lines `data: {...}`, token at `choices[0].delta.content`, `[DONE]` sentinel | Yes — `/v1/embeddings`, model `nvidia/nemotron-3-embed-1b`, all texts in **one request** | Auth: `Authorization: Bearer <key>` |
 | `OllamaProvider` (`ollama`) | `http://localhost:11434/api/chat` | **NDJSON**: one JSON object per line, `message.content` | Yes — `/api/embeddings`, model hardcoded `nomic-embed-text`, **one request per text** (sequential loop) | No key; `isLocal`; base URL overridable via constructor `baseUrl` |
 | `OpenAIProvider` (`openai`) | OpenAI `/v1/chat/completions` | OpenAI SSE (same parser as NVIDIA) | Yes — `/v1/embeddings` | — |
-| `AnthropicProvider` (`anthropic`) | `https://api.anthropic.com/v1/messages` | Anthropic SSE; **system prompt passed as top-level `system` field**, not as a message | Yes | Auth headers: `x-api-key` + `anthropic-version` |
-| `GoogleProvider` (`google`) | `https://generativelanguage.googleapis.com/v1beta/models/...` | Gemini `streamGenerateContent`; **system prompt becomes `systemInstruction`**; roles mapped `assistant`→`model` | Yes | Auth: `?key=<GEMINI_API_KEY>` query param |
+| `AnthropicProvider` (`anthropic`) | `https://api.anthropic.com/v1/messages` | Anthropic SSE; **system prompt passed as top-level `system` field**, not as a message | No — RAG silently disabled | Auth headers: `x-api-key` + `anthropic-version` |
+| `GoogleProvider` (`google`) | `https://generativelanguage.googleapis.com/v1beta/models/...` | Gemini `streamGenerateContent`; **system prompt becomes `systemInstruction`**; roles mapped `assistant`→`model` | No — RAG silently disabled | Auth: `?key=<GEMINI_API_KEY>` query param |
 
 **The streaming-parse pattern** (identical shape in every `chat()`):
 

@@ -54,7 +54,7 @@ pnpm typecheck
 pnpm lint
 
 # Fix lint issues
-pnpm lint:fix
+pnpm lint --fix
 
 # Build library
 pnpm build
@@ -153,10 +153,10 @@ The embedded server runs on a random port. Check console logs for:
 
 ### Document Ingestion
 
-Check the manifest file at `.rag-chatbot/manifest.json` for ingestion status.
+Check the manifest file at `.chatty-buddy/manifest.json` for ingestion status.
 
 ## Performance
 
 - Use In-Memory store for testing
-- ChromaDB is recommended for development
-- Consider Qdrant for production use
+- SQLite (default) works well for small to medium document sets
+- ChromaDB is recommended for larger scale or if you need a dedicated vector database

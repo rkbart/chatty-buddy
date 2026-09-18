@@ -47,7 +47,7 @@ Each decision: **what** the code does, **why**, and the **trade-off** to be awar
 ## D8. Embeddings come from the chat provider (`provider.embed`)
 
 - **What:** One object does both chat and embeddings; RAG silently disables when `embed` is missing.
-- **Why:** Simple mental model, fewer config knobs; every built-in provider exposes embeddings.
+- **Why:** Simple mental model, fewer config knobs; most built-in providers expose embeddings (Anthropic and Google do not, so RAG is silently disabled for them).
 - **Trade-off:** Can't mix (e.g. local chat + cloud embeddings) — the gap `EmbeddingRegistry` was scaffolded for. Ollama hardcodes `nomic-embed-text` and embeds sequentially, one request per text. Switching embedding models mid-life **invalidates existing vectors** (dimension mismatch) — re-ingest with `?force=true`.
 
 ## D9. "distance" that is actually a similarity

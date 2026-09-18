@@ -33,7 +33,9 @@ export class MistralProvider implements LLMProvider {
 
 Optionally export it from `src/index.ts` so library users can construct it.
 
-**Step 3 — test it**: add `tests/providers/mistral.test.ts` (see `nvidia.test.ts` — it stubs `fetch`), run `pnpm test`, and try it live: `--provider mistral --api-key ...`.
+**Step 3 — test it**: add `tests/providers/mistral.test.ts` (see existing provider tests for the fetch-stubbing pattern), run `pnpm test`, and try it live: `--provider mistral --api-key ...`.
+
+> **Note:** No tests exist yet in the repo. Writing tests for existing providers is a great first contribution.
 
 That's it — `chat.ts`, ingestion, and the component need **zero changes**.
 
@@ -68,15 +70,16 @@ cd packages/chatty-buddy && pnpm build   # tsup → the three dist bundles
 
 ### Test layout
 
+Tests live in `packages/chatty-buddy/tests/` and follow the pattern:
 ```
-packages/chatty-buddy/tests/
+tests/
 ├── setup.ts                  # shared setup
-├── providers/                # nvidia.test.ts, ollama.test.ts (fetch stubbing)
-├── stores/                   # inmemory.test.ts
-└── utils/                    # manifest.test.ts
+├── providers/                # one file per LLM provider
+├── stores/                   # one file per vector store
+└── utils/                    # chunker, manifest, parsers
 ```
 
-Testing patterns already in use: stub global `fetch` for providers, pure-function tests for utils, interface-level tests against `InMemoryStore`. Untested areas that would make great first PRs: `chunker.ts`, `SQLiteStore` (temp-file DB), `ingestDocuments` end-to-end, the SSE format of the chat route, and the React component (vitest + @testing-library/react).
+> **Note:** No tests exist yet — the vitest config (`vitest.config.ts`) is set up but the `tests/` directory has not been created. Writing tests for providers, stores, and utilities would be a great first contribution.
 
 ## Build outputs (what lands in `packages/chatty-buddy/dist/`)
 

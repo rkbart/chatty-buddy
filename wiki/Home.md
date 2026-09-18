@@ -47,7 +47,7 @@ chatty-buddy/
 ├── package.json                  # Root workspace: scripts (dev, build, test)
 ├── pnpm-workspace.yaml           # pnpm monorepo definition
 ├── tsconfig.base.json            # Shared TypeScript settings
-├── tsdown.config.ts              # Root bundler config (library build)
+├── tsdown.config.ts              # Root bundler config (library build via tsdown)
 ├── vitest.config.ts              # Test runner config
 └── packages/
     └── chatty-buddy/             # The publishable package: @chatty-buddy/react

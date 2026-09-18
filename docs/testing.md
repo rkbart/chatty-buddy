@@ -2,7 +2,7 @@
 
 ## Overview
 
-Chatty-Buddy uses Vitest for testing with @testing-library/react for component tests.
+Chatty-Buddy uses Vitest for testing. Tests live in `packages/chatty-buddy/tests/` but **no tests exist yet** — the directory structure is not created. The vitest config (`vitest.config.ts`) is ready and configured to discover tests matching `packages/*/tests/**/*.test.{ts,tsx}`.
 
 ## Running Tests
 
@@ -16,26 +16,23 @@ pnpm test:watch
 # Run with coverage
 pnpm test:coverage
 
-# Run specific test file
+# Run specific test file (path relative to packages/chatty-buddy/)
 pnpm test -- tests/providers/nvidia.test.ts
 ```
 
 ## Test Structure
 
+Tests should follow this structure once created:
+
 ```
-tests/
+packages/chatty-buddy/tests/
 ├── setup.ts                 # Test setup
-├── providers/               # LLM provider tests
-│   ├── nvidia.test.ts
-│   ├── ollama.test.ts
-│   └── ...
-├── stores/                  # Vector store tests
-│   ├── inmemory.test.ts
-│   └── chromadb.test.ts
-└── utils/                   # Utility tests
-    ├── chunker.test.ts
-    └── manifest.test.ts
+├── providers/               # LLM provider tests (one file per provider)
+├── stores/                  # Vector store tests (one file per store)
+└── utils/                   # Utility tests (chunker, manifest, parsers)
 ```
+
+> **Note:** This directory does not exist yet. Writing tests for providers, stores, and utilities would be a great first contribution.
 
 ## Writing Tests
 
