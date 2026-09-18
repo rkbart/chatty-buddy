@@ -134,7 +134,7 @@
 }
 
 .rag-chatbot__welcome {
-  text-align: center;
+  text-align: left;
   color: #666;
   padding: 20px;
 }
