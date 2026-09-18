@@ -12,6 +12,7 @@ export function RagChatbot({
   placeholder = 'Ask me anything...',
   showAbout = true,
   buyMeACoffeeUrl = 'https://buymeacoffee.com/rkbart',
+  githubUrl = 'https://github.com/rkbart/chatty-buddy',
   about,
   className,
   style,
@@ -260,10 +261,18 @@ export function RagChatbot({
                 <h3>About</h3>
               </div>
               <div className="rag-chatbot__about-body">
-                <p className="rag-chatbot__about-title">{title}</p>
                 <p className="rag-chatbot__about-text">
-                  {about ?? 'A private AI assistant powered by chatty-buddy.'}
+                  {about ??
+                    'A completely free RAG chatbot that answers questions from your own documents.'}
                 </p>
+                {githubUrl && (
+                  <p className="rag-chatbot__about-powered">
+                    Powered by{' '}
+                    <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+                      chatty-buddy
+                    </a>
+                  </p>
+                )}
                 {buyMeACoffeeUrl && (
                   <a
                     className="rag-chatbot__about-coffee"

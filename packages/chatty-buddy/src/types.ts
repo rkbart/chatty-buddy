@@ -167,7 +167,10 @@ export interface RagChatbotProps {
   /** Buy Me a Coffee link shown in the About panel. Set to '' to hide. Default: https://buymeacoffee.com/rkbart */
   buyMeACoffeeUrl?: string;
 
-  /** Custom about text (rendered as plain text). Defaults to a generic blurb */
+  /** GitHub repository link shown in the About panel. Set to '' to hide. Default: https://github.com/rkbart/chatty-buddy */
+  githubUrl?: string;
+
+  /** Custom about text (rendered as plain text). Defaults to a short blurb about the free RAG chatbot */
   about?: string;
 
   /** Additional CSS class name */

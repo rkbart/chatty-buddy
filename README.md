@@ -117,6 +117,7 @@ curl http://localhost:3000/api/documents
 | `placeholder` | `string` | `Ask me anything...` | Input placeholder |
 | `showAbout` | `boolean` | `true` | Show ⓘ About button in header |
 | `buyMeACoffeeUrl` | `string` | `https://buymeacoffee.com/rkbart` | Support link in About panel (`''` hides it) |
+| `githubUrl` | `string` | `https://github.com/rkbart/chatty-buddy` | Repo link in About panel (`''` hides it) |
 | `about` | `string` | - | Custom About panel text |
 | `className` | `string` | - | Additional CSS class |
 | `style` | `CSSProperties` | - | Inline styles |

@@ -454,17 +454,22 @@
   gap: 12px;
 }
 
-.rag-chatbot__about-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
 .rag-chatbot__about-text {
-  margin: 0 0 12px 0;
+  margin: 0;
   color: #666;
   line-height: 1.6;
+}
+
+.rag-chatbot__about-powered {
+  margin: 0;
+  font-size: 13px;
+  color: #999;
+}
+
+.rag-chatbot__about-powered a {
+  color: var(--primary-color, #007bff);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 .rag-chatbot__about-coffee {
@@ -568,12 +573,12 @@
   background: #1a1a1a;
 }
 
-.rag-chatbot--dark .rag-chatbot__about-title {
-  color: #e0e0e0;
-}
-
 .rag-chatbot--dark .rag-chatbot__about-text {
   color: #999;
+}
+
+.rag-chatbot--dark .rag-chatbot__about-powered {
+  color: #777;
 }
 
 .rag-chatbot--dark .rag-chatbot__about-coffee {
